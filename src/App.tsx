@@ -1,4 +1,9 @@
-import { ConnectButton, useCurrentAccount, useSignAndExecuteTransaction } from "@iota/dapp-kit";
+import {
+  ConnectButton,
+  useCurrentAccount,
+  useSignAndExecuteTransaction
+} from "@iota/dapp-kit";
+
 import { Transaction } from "@iota/iota-sdk/transactions";
 
 export default function App() {
@@ -18,12 +23,12 @@ export default function App() {
       arguments: [
         tx.pure.string("Kryptonite NFT"),
         tx.pure.string("Minted from Kryptonite Minter"),
-        tx.pure.string("https://placekitten.com/400/400"),
-      ],
+        tx.pure.string("https://placekitten.com/400/400")
+      ]
     });
 
     signAndExecute({
-      transaction: tx,
+      transaction: tx
     });
   }
 
