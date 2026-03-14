@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@iota/dapp-kit": "^1.0.0",
-    "@iota/iota-sdk": "^1.0.0",
+    "@iota/dapp-kit": "latest",
+    "@iota/iota-sdk": "latest",
     "@tanstack/react-query": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
