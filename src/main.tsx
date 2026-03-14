@@ -20,8 +20,8 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("app")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <IotaClientProvider networks={networkConfig} defaultNetwork="mainnet">
-        <WalletProvider autoConnect>
+      <IotaClientProvider networks={networkConfig}>
+        <WalletProvider autoConnect={true}>
           <App />
         </WalletProvider>
       </IotaClientProvider>
