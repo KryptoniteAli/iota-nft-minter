@@ -1,27 +1,12 @@
-import { ConnectButton, useCurrentAccount } from "@iota/dapp-kit";
-
 export default function App() {
-  const account = useCurrentAccount();
-
-  function handleMint() {
-    if (!account) {
-      alert("Connect wallet first");
-      return;
-    }
-
-    alert("Minting NFT from: " + account.address);
-  }
-
   return (
     <div style={{ padding: 30 }}>
       <h1>Kryptonite NFT Minter</h1>
+      <p>Your IOTA NFT minting app is running.</p>
 
-      <ConnectButton />
-
-      <p>Wallet:</p>
-      <p>{account ? account.address : "Not connected"}</p>
-
-      <button onClick={handleMint}>Mint NFT</button>
+      <button onClick={() => alert("Mint coming soon")}>
+        Mint NFT
+      </button>
     </div>
   );
 }
