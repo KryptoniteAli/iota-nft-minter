@@ -1,30 +1,22 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App";
+
 import {
   IotaClientProvider,
-  WalletProvider,
-  createNetworkConfig,
+  WalletProvider
 } from "@iota/dapp-kit";
-import { getFullnodeUrl } from "@iota/iota-sdk/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import App from "./App";
-import "@iota/dapp-kit/dist/index.css";
 
-const { networkConfig } = createNetworkConfig({
-  mainnet: { url: getFullnodeUrl("mainnet") },
-  testnet: { url: getFullnodeUrl("testnet") },
-});
+const networks = {
+  testnet: { url: "https://api.testnet.iota.cafe" }
+};
 
-const queryClient = new QueryClient();
-
-ReactDOM.createRoot(document.getElementById("app")!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <IotaClientProvider networks={networkConfig}>
-        <WalletProvider autoConnect={true}>
-          <App />
-        </WalletProvider>
-      </IotaClientProvider>
-    </QueryClientProvider>
+    <IotaClientProvider networks={networks} defaultNetwork="testnet">
+      <WalletProvider autoConnect>
+        <App />
+      </WalletProvider>
+    </IotaClientProvider>
   </React.StrictMode>
 );
