@@ -9,56 +9,161 @@ import { Transaction } from "@iota/iota-sdk/transactions";
 const PACKAGE_ID =
   "0x02bd1cad27faa2e5b757a199c579d7e128c5b725d976ceb37234e907b3a7f7a1";
 
+const PINATA_GATEWAY = import.meta.env.VITE_PINATA_GATEWAY || "";
+
 export default function App() {
   const account = useCurrentAccount();
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
 
   const [name, setName] = useState("Kryptonite NFT");
   const [description, setDescription] = useState("Minted from Kryptonite Minter");
-  const [url, setUrl] = useState("https://placehold.co/600x600/png");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [status, setStatus] = useState("Ready");
   const [digest, setDigest] = useState("");
-  const [status, setStatus] = useState("");
+  const [metadataUrl, setMetadataUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [minting, setMinting] = useState(false);
 
   const canMint = useMemo(() => {
-    return !!account && !!name.trim() && !!description.trim() && !!url.trim() && !minting;
-  }, [account, name, description, url, minting]);
+    return !!account && !!name.trim() && !!description.trim() && !!imageFile && !minting;
+  }, [account, name, description, imageFile, minting]);
 
-  function handleMint() {
-    if (!account) {
-      alert("Connect wallet first");
+  function onImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    setImageFile(file);
+
+    if (!file) {
+      setImagePreview("");
       return;
     }
 
-    setMinting(true);
-    setStatus("Waiting for wallet approval...");
+    setImagePreview(URL.createObjectURL(file));
+  }
 
-    const tx = new Transaction();
+  async function getSignedUploadUrl(fileName: string): Promise<string> {
+    const response = await fetch(`/api/pinata-url?name=${encodeURIComponent(fileName)}`);
+    if (!response.ok) {
+      throw new Error("Failed to get signed upload URL");
+    }
 
-    tx.moveCall({
-      target: `${PACKAGE_ID}::kryptonite_nft::mint_to_sender`,
-      arguments: [
-        tx.pure.string(name.trim()),
-        tx.pure.string(description.trim()),
-        tx.pure.string(url.trim()),
-      ],
+    const data = await response.json();
+    return data.url;
+  }
+
+  async function uploadFileToPinata(file: File): Promise<{ cid: string; url: string }> {
+    const signedUrl = await getSignedUploadUrl(file.name);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("network", "public");
+
+    const uploadResponse = await fetch(signedUrl, {
+      method: "POST",
+      body: formData,
     });
 
-    signAndExecuteTransaction(
-      { transaction: tx },
-      {
-        onSuccess: (result) => {
-          setDigest(result.digest);
-          setStatus("NFT minted successfully");
-          setMinting(false);
-        },
-        onError: (error) => {
-          console.error(error);
-          setStatus(error.message || "Mint failed");
-          setMinting(false);
-        },
+    if (!uploadResponse.ok) {
+      const text = await uploadResponse.text();
+      throw new Error(`Pinata file upload failed: ${text}`);
+    }
+
+    const uploadJson = await uploadResponse.json();
+    const cid = uploadJson?.data?.cid;
+
+    if (!cid) {
+      throw new Error("Pinata upload succeeded but no CID was returned");
+    }
+
+    const resolvedUrl = PINATA_GATEWAY
+      ? `https://${PINATA_GATEWAY}/ipfs/${cid}`
+      : `ipfs://${cid}`;
+
+    return { cid, url: resolvedUrl };
+  }
+
+  async function uploadMetadataToPinata(metadata: Record<string, unknown>) {
+    const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
+      type: "application/json",
+    });
+
+    const metadataFile = new File([metadataBlob], "metadata.json", {
+      type: "application/json",
+    });
+
+    return uploadFileToPinata(metadataFile);
+  }
+
+  async function handleMint() {
+    try {
+      if (!account) {
+        alert("Connect wallet first");
+        return;
       }
-    );
+
+      if (!imageFile) {
+        alert("Choose an image first");
+        return;
+      }
+
+      setMinting(true);
+      setDigest("");
+      setMetadataUrl("");
+      setImageUrl("");
+
+      setStatus("Uploading image to IPFS...");
+      const uploadedImage = await uploadFileToPinata(imageFile);
+      setImageUrl(uploadedImage.url);
+
+      const metadata = {
+        name: name.trim(),
+        description: description.trim(),
+        image: uploadedImage.url,
+        attributes: [
+          {
+            trait_type: "Collection",
+            value: "Kryptonite",
+          },
+        ],
+      };
+
+      setStatus("Uploading metadata to IPFS...");
+      const uploadedMetadata = await uploadMetadataToPinata(metadata);
+      setMetadataUrl(uploadedMetadata.url);
+
+      setStatus("Waiting for wallet approval...");
+
+      const tx = new Transaction();
+
+      tx.moveCall({
+        target: `${PACKAGE_ID}::kryptonite_nft::mint_to_sender`,
+        arguments: [
+          tx.pure.string(name.trim()),
+          tx.pure.string(description.trim()),
+          tx.pure.string(uploadedMetadata.url),
+        ],
+      });
+
+      signAndExecuteTransaction(
+        { transaction: tx },
+        {
+          onSuccess: (result) => {
+            setDigest(result.digest);
+            setStatus("NFT minted successfully");
+            setMinting(false);
+          },
+          onError: (error) => {
+            console.error(error);
+            setStatus(error.message || "Mint failed");
+            setMinting(false);
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      setStatus(error instanceof Error ? error.message : "Unexpected error");
+      setMinting(false);
+    }
   }
 
   return (
@@ -74,7 +179,7 @@ export default function App() {
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         <h1 style={{ fontSize: 40, marginBottom: 8 }}>Kryptonite NFT Minter</h1>
         <p style={{ marginTop: 0, marginBottom: 24 }}>
-          Mainnet NFT minting on IOTA.
+          Mainnet NFT minting with IPFS metadata.
         </p>
 
         <div style={{ marginBottom: 20 }}>
@@ -137,19 +242,22 @@ export default function App() {
           </label>
 
           <label style={{ display: "grid", gap: 8 }}>
-            <span>Image URL</span>
-            <input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
+            <span>Image File</span>
+            <input type="file" accept="image/*" onChange={onImageChange} />
+          </label>
+
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Preview"
               style={{
-                padding: 12,
-                borderRadius: 10,
-                border: "1px solid #bbb",
-                fontSize: 16,
+                width: "100%",
+                maxWidth: 320,
+                borderRadius: 16,
+                border: "1px solid #ddd",
               }}
             />
-          </label>
+          )}
 
           <button
             onClick={handleMint}
@@ -177,7 +285,20 @@ export default function App() {
           }}
         >
           <p style={{ marginTop: 0, fontWeight: 700 }}>Status</p>
-          <p>{status || "Ready"}</p>
+          <p>{status}</p>
+
+          {imageUrl && (
+            <p style={{ wordBreak: "break-all" }}>
+              <strong>Image URL:</strong> {imageUrl}
+            </p>
+          )}
+
+          {metadataUrl && (
+            <p style={{ wordBreak: "break-all" }}>
+              <strong>Metadata URL:</strong> {metadataUrl}
+            </p>
+          )}
+
           {digest && (
             <p style={{ wordBreak: "break-all" }}>
               <strong>Transaction Digest:</strong> {digest}
