@@ -172,16 +172,19 @@ export default function App() {
                 {nft.url && (
 
 
-<img
-  src={
-    nft.url.startsWith("ipfs://")
-      ? `https://gateway.pinata.cloud/ipfs/${nft.url.replace("ipfs://", "")}`
-      : nft.url
+function resolveIpfs(url: string) {
+  if (!url) return "";
+  if (url.startsWith("ipfs://")) {
+    return `https://gateway.pinata.cloud/ipfs/${url.replace("ipfs://", "")}`;
   }
-  alt={nft.name}
-  style={{ width: "100%", borderRadius: "10px" }}
-/>
+  return url;
+}
 
+<img
+  src={resolveIpfs(nft.url)}
+  alt={nft.name}
+  style={{ width: "100%", borderRadius: "12px" }}
+/>
 
 
 
