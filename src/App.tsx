@@ -68,10 +68,9 @@ async function uploadFileToPinata(file: File) {
   }
 
   const data = await upload.json();
-  return data.data.cid;
+  return data.IpfsHash;
+
 }
-
-
 
 
 
