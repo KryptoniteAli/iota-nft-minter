@@ -51,7 +51,8 @@ export default function App() {
     return data.url;
   }
 
-async function uploadFileToPinata(file: File) {
+
+async function uploadFileToPinata(file: File): Promise<{ cid: string; url: string }> {
   const response = await fetch(`/api/pinata-url?name=${encodeURIComponent(file.name)}`);
   const { url } = await response.json();
 
@@ -68,13 +69,21 @@ async function uploadFileToPinata(file: File) {
   }
 
   const data = await upload.json();
-  return data.IpfsHash;
+  const cid = data.IpfsHash;
 
+  if (!cid) {
+    throw new Error("Pinata CID not returned");
+  }
+
+  const fileUrl = PINATA_GATEWAY
+    ? `https://${PINATA_GATEWAY}/ipfs/${cid}`
+    : `ipfs://${cid}`;
+
+  return {
+    cid,
+    url: fileUrl,
+  };
 }
-
-
-
-
 
 
 
