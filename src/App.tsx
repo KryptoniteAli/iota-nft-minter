@@ -25,6 +25,8 @@ type MintedNft = {
 };
 
 export default function App() {
+
+const [file, setFile] = useState<File | null>(null);
   const account = useCurrentAccount();
   const client = useIotaClient();
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
@@ -35,8 +37,6 @@ export default function App() {
   const [minting, setMinting] = useState(false);
   const [status, setStatus] = useState("Ready");
   const [nfts, setNfts] = useState<MintedNft[]>([]);
-
-const [file, setFile] = useState<File | null>(null);
 
 
   async function loadMyNfts() {
