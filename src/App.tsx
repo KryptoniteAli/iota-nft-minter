@@ -170,17 +170,26 @@ export default function App() {
                 }}
               >
                 {nft.url && (
-                  <img
-                    src={nft.url}
-                    alt={nft.name}
-                    style={{
-                      width: "100%",
-                      aspectRatio: "1 / 1",
-                      objectFit: "cover",
-                      borderRadius: 12,
-                      marginBottom: 12,
-                    }}
-                  />
+
+
+<img
+  src={
+    nft.url.startsWith("ipfs://")
+      ? `https://gateway.pinata.cloud/ipfs/${nft.url.replace("ipfs://", "")}`
+      : nft.url
+  }
+  alt={nft.name}
+  style={{ width: "100%", borderRadius: "10px" }}
+/>
+
+
+
+
+
+
+
+
+
                 )}
 
                 <h3 style={{ margin: "0 0 8px 0" }}>{nft.name}</h3>
