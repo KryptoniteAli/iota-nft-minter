@@ -51,36 +51,48 @@ export default function App() {
     return data.url;
   }
 
-  async function uploadFileToPinata(file: File): Promise<{ cid: string; url: string }> {
-    const signedUrl = await getSignedUploadUrl(file.name);
+async function uploadFileToPinata(file: File) {
+  const response = await fetch(`/api/pinata-url?name=${encodeURIComponent(file.name)}`);
+  const { url } = await response.json();
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("network", "public");
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const uploadResponse = await fetch(signedUrl, {
-      method: "POST",
-      body: formData,
-    });
+  const upload = await fetch(url, {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!uploadResponse.ok) {
-      const text = await uploadResponse.text();
-      throw new Error(`Pinata file upload failed: ${text}`);
-    }
-
-    const uploadJson = await uploadResponse.json();
-    const cid = uploadJson?.data?.cid;
-
-    if (!cid) {
-      throw new Error("Pinata upload succeeded but no CID was returned");
-    }
-
-    const resolvedUrl = PINATA_GATEWAY
-      ? `https://${PINATA_GATEWAY}/ipfs/${cid}`
-      : `ipfs://${cid}`;
-
-    return { cid, url: resolvedUrl };
+  if (!upload.ok) {
+    throw new Error("Pinata upload failed");
   }
+
+  const data = await upload.json();
+  return data.data.cid;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
 
   async function uploadMetadataToPinata(metadata: Record<string, unknown>) {
     const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
