@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   ConnectButton,
@@ -36,9 +37,11 @@ export default function App() {
   const [previewUrl, setPreviewUrl] = useState("");
   const [status, setStatus] = useState("Ready");
   const [minting, setMinting] = useState(false);
+
   const [digest, setDigest] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [metadataUrl, setMetadataUrl] = useState("");
+
   const [nfts, setNfts] = useState<MintedNft[]>([]);
 
   useEffect(() => {
@@ -249,7 +252,7 @@ export default function App() {
         fontFamily: "sans-serif",
       }}
     >
-      <div style={{ maxWidth: 960, margin: "0 auto" }}>
+      <div style={{ maxWidth: 980, margin: "0 auto" }}>
         <h1 style={{ fontSize: 42, marginBottom: 20 }}>
           Kryptonite NFT Minter
         </h1>
@@ -264,6 +267,7 @@ export default function App() {
             borderRadius: 20,
             padding: 24,
             marginBottom: 32,
+            background: "#fff",
           }}
         >
           <h2 style={{ marginTop: 0, marginBottom: 20 }}>Mint NFT</h2>
@@ -311,6 +315,7 @@ export default function App() {
             >
               Image File
             </label>
+
             <input
               type="file"
               accept="image/*"
@@ -334,6 +339,7 @@ export default function App() {
                 borderRadius: 16,
                 marginBottom: 16,
                 display: "block",
+                background: "#eee",
               }}
             />
           )}
@@ -359,19 +365,40 @@ export default function App() {
 
             {imageUrl && (
               <p style={{ marginTop: 10, wordBreak: "break-all" }}>
-                <strong>Image URL:</strong> {imageUrl}
+                <strong>IPFS Image:</strong>{" "}
+                <a
+                  href={imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {imageUrl}
+                </a>
               </p>
             )}
 
             {metadataUrl && (
               <p style={{ marginTop: 10, wordBreak: "break-all" }}>
-                <strong>Metadata URL:</strong> {metadataUrl}
+                <strong>IPFS Metadata:</strong>{" "}
+                <a
+                  href={metadataUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {metadataUrl}
+                </a>
               </p>
             )}
 
             {digest && (
               <p style={{ marginTop: 10, wordBreak: "break-all" }}>
-                <strong>Digest:</strong> {digest}
+                <strong>IOTAScan Tx:</strong>{" "}
+                <a
+                  href={`https://iotascan.com/mainnet/tx/${digest}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {digest}
+                </a>
               </p>
             )}
           </div>
@@ -401,9 +428,7 @@ export default function App() {
                   }}
                 >
                   {nft.url ? (
-                   
-
- <img
+                    <img
                       src={nft.url}
                       alt={nft.name}
                       style={{
@@ -419,7 +444,7 @@ export default function App() {
                     <div
                       style={{
                         width: "100%",
-                         aspectRatio: "1 / 1",
+                        aspectRatio: "1 / 1",
                         borderRadius: 16,
                         marginBottom: 16,
                         background: "#ddd",
@@ -433,39 +458,34 @@ export default function App() {
                     </div>
                   )}
 
-                 
- <h3 style={{ margin: "0 0 8px 0", fontSize: 22 }}>
+                  <h3 style={{ margin: "0 0 8px 0", fontSize: 22 }}>
                     {nft.name}
+                  </h3>
 
+                  <p style={{ margin: "0 0 12px 0", fontSize: 16 }}>
+                    {nft.description}
+                  </p>
 
+                  <p style={{ margin: "0 0 10px 0", wordBreak: "break-all", fontSize: 14 }}>
+                    {nft.objectId}
+                  </p>
 
-<p style={{ fontSize: 12, wordBreak: "break-all" }}>
-  {nft.objectId}
-</p>
-
-<a
-  href={`https://iotascan.com/mainnet/object/${nft.objectId}`}
-  target="_blank"
-  rel="noopener noreferrer"
-  style={{
-    display: "inline-block",
-    marginTop: 10,
-    color: "#0066ff",
-    fontWeight: "bold"
-  }}
->
-  View on IOTAScan
-</a>
-
-
-
-
-
-
-
-
-
-
+                  <a
+                    href={`https://iotascan.com/mainnet/object/${nft.objectId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-block",
+                      padding: "8px 12px",
+                      borderRadius: 10,
+                      background: "#111",
+                      color: "#fff",
+                      textDecoration: "none",
+                      fontSize: 14,
+                    }}
+                  >
+                    View on IOTAScan
+                  </a>
                 </div>
               ))}
             </div>
