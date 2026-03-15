@@ -12,7 +12,13 @@ const PACKAGE_ID =
 
 type MintedNft = {
   objectId: string;
-  name: string;
+ 
+<p style={{ wordBreak: "break-all", fontSize: 12 }}>
+  URL: {nft.url}
+</p>
+
+
+ name: string;
   description: string;
   url: string;
 };
@@ -196,8 +202,7 @@ function resolveIpfs(url: string) {
                 )}
 
                 <h3 style={{ margin: "0 0 8px 0" }}>{nft.name}</h3>
-                <p style={{ margin: "0 0 8px 0" }}>{nft.description}</p>
-                <small style={{ wordBreak: "break-all" }}>{nft.objectId}</small>
+                <p style={{ margin: "0 0 8px 0" }}>{nft.description}</p>?                <small style={{ wordBreak: "break-all" }}>{nft.objectId}</small>
               </div>
             ))}
           </div>
