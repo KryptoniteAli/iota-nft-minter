@@ -401,7 +401,9 @@ export default function App() {
                   }}
                 >
                   {nft.url ? (
-                    <img
+                   
+
+ <img
                       src={nft.url}
                       alt={nft.name}
                       style={{
@@ -417,7 +419,7 @@ export default function App() {
                     <div
                       style={{
                         width: "100%",
-                        aspectRatio: "1 / 1",
+                         aspectRatio: "1 / 1",
                         borderRadius: 16,
                         marginBottom: 16,
                         background: "#ddd",
@@ -431,17 +433,39 @@ export default function App() {
                     </div>
                   )}
 
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: 22 }}>
+                 
+ <h3 style={{ margin: "0 0 8px 0", fontSize: 22 }}>
                     {nft.name}
-                  </h3>
 
-                  <p style={{ margin: "0 0 12px 0", fontSize: 16 }}>
-                    {nft.description}
-                  </p>
 
-                  <p style={{ margin: 0, wordBreak: "break-all", fontSize: 14 }}>
-                    {nft.objectId}
-                  </p>
+
+<p style={{ fontSize: 12, wordBreak: "break-all" }}>
+  {nft.objectId}
+</p>
+
+<a
+  href={`https://iotascan.com/mainnet/object/${nft.objectId}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  style={{
+    display: "inline-block",
+    marginTop: 10,
+    color: "#0066ff",
+    fontWeight: "bold"
+  }}
+>
+  View on IOTAScan
+</a>
+
+
+
+
+
+
+
+
+
+
                 </div>
               ))}
             </div>
