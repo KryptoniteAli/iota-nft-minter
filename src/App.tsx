@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   ConnectButton,
@@ -34,6 +35,9 @@ export default function App() {
   const [minting, setMinting] = useState(false);
   const [status, setStatus] = useState("Ready");
   const [nfts, setNfts] = useState<MintedNft[]>([]);
+
+const [file, setFile] = useState<File | null>(null);
+
 
   async function loadMyNfts() {
     if (!account) return;
@@ -143,12 +147,18 @@ tx.moveCall({
           style={{ display: "block", width: "100%", marginBottom: 12, padding: 10 }}
         />
 
-        <input
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Image URL"
-          style={{ display: "block", width: "100%", marginBottom: 12, padding: 10 }}
-        />
+
+
+<input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  }}
+/>
+
 
         <button onClick={handleMint} disabled={minting}>
           {minting ? "Minting..." : "Mint NFT"}
