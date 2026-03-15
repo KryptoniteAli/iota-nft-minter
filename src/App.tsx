@@ -254,7 +254,7 @@ export default function App() {
     >
       <div style={{ maxWidth: 980, margin: "0 auto" }}>
         <h1 style={{ fontSize: 42, marginBottom: 20 }}>
-          Kryptonite NFT Minter
+          Kryptonite IOTA Mainnet NFT Minter
         </h1>
 
         <div style={{ marginBottom: 24 }}>
