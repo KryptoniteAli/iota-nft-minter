@@ -52,27 +52,46 @@ export default function App() {
   }
 
 
+
+
+
 async function uploadFileToPinata(file: File): Promise<{ cid: string; url: string }> {
   const response = await fetch(`/api/pinata-url?name=${encodeURIComponent(file.name)}`);
-  const { url } = await response.json();
+  const signed = await response.json();
+
+  if (!signed?.url) {
+    throw new Error("Signed upload URL not returned");
+  }
 
   const formData = new FormData();
   formData.append("file", file);
 
-  const upload = await fetch(url, {
+  const upload = await fetch(signed.url, {
     method: "POST",
     body: formData,
   });
 
+  const rawText = await upload.text();
+
   if (!upload.ok) {
-    throw new Error("Pinata upload failed");
+    throw new Error(`Pinata upload failed: ${rawText}`);
   }
 
-  const data = await upload.json();
-  const cid = data.IpfsHash;
+  let data: any = {};
+  try {
+    data = JSON.parse(rawText);
+  } catch {
+    throw new Error(`Pinata returned non-JSON response: ${rawText}`);
+  }
+
+  const cid =
+    data?.data?.cid ||
+    data?.cid ||
+    data?.IpfsHash ||
+    data?.ipfsHash;
 
   if (!cid) {
-    throw new Error("Pinata CID not returned");
+    throw new Error(`Pinata CID not returned. Response: ${rawText}`);
   }
 
   const fileUrl = PINATA_GATEWAY
@@ -84,14 +103,6 @@ async function uploadFileToPinata(file: File): Promise<{ cid: string; url: strin
     url: fileUrl,
   };
 }
-
-
-
-
-
-
-
-
 
 
 
