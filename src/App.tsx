@@ -87,14 +87,19 @@ export default function App() {
 
     const tx = new Transaction();
 
-    tx.moveCall({
-      target: `${PACKAGE_ID}::kryptonite_nft::mint_to_sender`,
-      arguments: [
-        tx.pure.string(name.trim()),
-        tx.pure.string(description.trim()),
-        tx.pure.string(url.trim()),
-      ],
-    });
+
+
+tx.moveCall({
+  target: `${PACKAGE_ID}::kryptonite_nft::mint_to_sender`,
+  arguments: [
+    tx.pure.string(name.trim()),
+    tx.pure.string(description.trim()),
+    tx.pure.string(uploadedImage.url),
+  ],
+});
+
+
+
 
     signAndExecuteTransaction(
       { transaction: tx },
