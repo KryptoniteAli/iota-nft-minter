@@ -26,10 +26,12 @@ type MintedNft = {
 
 export default function App() {
 
-const [file, setFile] = useState<File | null>(null);
-  const account = useCurrentAccount();
+
+const account = useCurrentAccount();
   const client = useIotaClient();
   const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+
+const [file, setFile] = useState<File | null>(null);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
