@@ -86,7 +86,7 @@ export default function App() {
     const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${pinataJwt}`,
+        Authorization: `${pinataJwt}`,
       },
       body: formData,
     });
