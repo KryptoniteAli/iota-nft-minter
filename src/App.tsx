@@ -1,122 +1,536 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import {
+  ConnectButton,
+  useCurrentAccount,
+  useIotaClient,
+  useSignAndExecuteTransaction,
+} from "@iota/dapp-kit";
+import { Transaction } from "@iota/iota-sdk/transactions";
+import "./style.css";
 
-const NFTMinter = () => {
-    const [file, setFile] = useState(null);
-    const [metadata, setMetadata] = useState({
-        name: '',
-        description: '',
-        image: '',
-        attributes: [],
-        displayProperties: {},
-    });
+const PACKAGE_ID =
+  "0x02bd1cad27faa2e5b757a199c579d7e128c5b725d976ceb37234e907b3a7f7a1";
 
-    const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
-    };
-
-    const handleMetadataChange = (e) => {
-        const { name, value } = e.target;
-        setMetadata({ ...metadata, [name]: value });
-    };
-
-    const uploadToPinata = async () => {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        // Pinata API endpoint and key
-        const PINATA_API_KEY = 'YOUR_PINATA_API_KEY';
-        const PINATA_SECRET_API_KEY = 'YOUR_PINATA_SECRET_API_KEY';
-
-        try {
-            const response = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
-                maxBodyLength: 'Infinity', 
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    pinata_api_key: PINATA_API_KEY,
-                    pinata_secret_api_key: PINATA_SECRET_API_KEY,
-                },
-            });
-            return `https://gateway.pinata.cloud/ipfs/${response.data.IpfsHash}`;
-        } catch (error) {
-            console.error('Error uploading file:', error);
-            return '';
-        }
-    };
-
-    const mintNFT = async () => {
-        const imageUrl = await uploadToPinata();
-        const nftMetadata = { ...metadata, image: imageUrl };
-
-        // Logic for Minting on Nightly Wallet or IOTA Wallet goes here
-        console.log('Minting NFT with metadata:', nftMetadata);
-        // You would replace this log with actual transaction logic
-    };
-
-    return (
-        <div>
-            <h1>Mint Your NFT</h1>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            <input type="text" name="name" placeholder="NFT Name" onChange={handleMetadataChange} />
-            <input type="text" name="description" placeholder="Description" onChange={handleMetadataChange} />
-            {/* Additional fields for attributes and display properties should be added here */}
-            <button onClick={mintNFT}>Mint NFT</button>
-        </div>
-    );
+type MintedNft = {
+  objectId: string;
+  name: string;
+  description: string;
+  url: string;
 };
 
-export default NFTMinter;
-
-
-// Add this helper function at the top
-function getMimeType(filename: string): string {
-  const ext = filename.toLowerCase().split('.').pop();
-  const types: { [key: string]: string } = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'webp': 'image/webp',
-  };
-  return types[ext || ''] || 'image/jpeg';
+function resolveIpfsUrl(url: string) {
+  if (!url) return "";
+  if (url.startsWith("ipfs://")) {
+    return `https://gateway.pinata.cloud/ipfs/${url.replace("ipfs://", "")}`;
+  }
+  return url;
 }
 
-// Update the handleMint function - replace lines 193-198 with:
-setStatus("Creating metadata...");
-const mimeType = getMimeType(file.name);
-const imageCid = uploadedImage.cid; // Make sure you extract this
+function getMimeType(filename: string): string {
+  const ext = filename.toLowerCase().split(".").pop();
+  const types: { [key: string]: string } = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    gif: "image/gif",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+  };
+  return types[ext || ""] || "image/jpeg";
+}
 
-const metadata = {
-  // Core metadata fields (required)
-  name: name.trim(),
-  description: description.trim(),
-  image: imageGatewayUrl,
-  
-  // IPFS direct URI (some wallets prefer this)
-  image_ipfs: `ipfs://${imageCid}`,
-  
-  // For Nightly Wallet
-  properties: {
-    creator: "Kryptonite",
-    network: "IOTA Mainnet",
-    mimeType: mimeType,
-  },
-  
-  // For IOTA Wallet  
-  display: {
-    width: 512,
-    height: 512,
-    background_color: "#FFFFFF",
-  },
-  
-  // Attributes (both wallets)
-  attributes: [
-    { trait_type: "Creator", value: "Kryptonite" },
-    { trait_type: "Network", value: "IOTA Mainnet" },
-    { trait_type: "Image Format", value: mimeType },
-  ],
-  
-  // Additional
-  external_url: "https://iotascan.com/mainnet",
-  animation_url: imageGatewayUrl,
-};
+export default function App() {
+  const account = useCurrentAccount();
+  const client = useIotaClient();
+  const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [status, setStatus] = useState("Ready");
+  const [minting, setMinting] = useState(false);
+
+  const [digest, setDigest] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [metadataUrl, setMetadataUrl] = useState("");
+
+  const [nfts, setNfts] = useState<MintedNft[]>([]);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  async function uploadFileToPinata(
+    uploadFile: File
+  ): Promise<{ cid: string; url: string }> {
+    const response = await fetch(
+      `/api/pinata-url?name=${encodeURIComponent(uploadFile.name)}`
+    );
+    const signed = await response.json();
+
+    if (!signed?.url) {
+      throw new Error("Signed upload URL not returned");
+    }
+
+    const formData = new FormData();
+    formData.append("file", uploadFile);
+
+    const upload = await fetch(signed.url, {
+      method: "POST",
+      body: formData,
+    });
+
+    const rawText = await upload.text();
+
+    if (!upload.ok) {
+      throw new Error(`Pinata upload failed: ${rawText}`);
+    }
+
+    let data: any = {};
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error(`Pinata returned non-JSON response: ${rawText}`);
+    }
+
+    const cid =
+      data?.data?.cid || data?.cid || data?.IpfsHash || data?.ipfsHash;
+
+    if (!cid) {
+      throw new Error(`Pinata CID not returned. Response: ${rawText}`);
+    }
+
+    return {
+      cid,
+      url: `https://gateway.pinata.cloud/ipfs/${cid}`,
+    };
+  }
+
+  async function uploadMetadataToPinata(metadata: Record<string, unknown>) {
+    const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
+      type: "application/json",
+    });
+
+    const metadataFile = new File([metadataBlob], "metadata.json", {
+      type: "application/json",
+    });
+
+    return uploadFileToPinata(metadataFile);
+  }
+
+  async function loadMyNfts() {
+    if (!account) {
+      setNfts([]);
+      return;
+    }
+
+    try {
+      const owned = await client.getOwnedObjects({
+        owner: account.address,
+        options: {
+          showContent: true,
+          showType: true,
+        },
+      });
+
+      const items: MintedNft[] = [];
+
+      for (const item of owned.data) {
+        const data = item.data;
+        if (!data) continue;
+        if (data.type !== `${PACKAGE_ID}::kryptonite_nft::NFT`) continue;
+
+        const fields = (data.content as any)?.fields;
+        if (!fields) continue;
+
+        items.push({
+          objectId: data.objectId,
+          name: fields.name || "Unnamed NFT",
+          description: fields.description || "",
+          url: resolveIpfsUrl(fields.url || ""),
+        });
+      }
+
+      setNfts(items);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    loadMyNfts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
+
+  async function handleMint() {
+    if (!account) {
+      setStatus("Connect wallet first");
+      return;
+    }
+
+    if (!name.trim()) {
+      setStatus("Enter NFT name");
+      return;
+    }
+
+    if (!description.trim()) {
+      setStatus("Enter description");
+      return;
+    }
+
+    if (!file) {
+      setStatus("Choose an image file");
+      return;
+    }
+
+    try {
+      setMinting(true);
+      setDigest("");
+      setImageUrl("");
+      setMetadataUrl("");
+      setStatus("Uploading image to IPFS...");
+
+      const uploadedImage = await uploadFileToPinata(file);
+      const imageGatewayUrl = uploadedImage.url;
+      const imageCid = uploadedImage.cid;
+      setImageUrl(imageGatewayUrl);
+
+      setStatus("Creating metadata...");
+      const mimeType = getMimeType(file.name);
+
+      // Create comprehensive metadata for wallet compatibility
+      const metadata = {
+        // Standard fields
+        name: name.trim(),
+        description: description.trim(),
+        image: imageGatewayUrl,
+        image_ipfs: `ipfs://${imageCid}`,
+
+        // Nightly Wallet specific
+        properties: {
+          creator: "Kryptonite NFT Minter",
+          created_date: new Date().toISOString(),
+          blockchain: "IOTA Mainnet",
+          standard: "IOTA-NFT",
+          mimeType: mimeType,
+        },
+
+        // IOTA Wallet specific
+        display: {
+          width: 512,
+          height: 512,
+          background_color: "#FFFFFF",
+          text_color: "#000000",
+        },
+
+        // Attributes
+        attributes: [
+          { trait_type: "Network", value: "IOTA Mainnet" },
+          { trait_type: "Creator", value: "Kryptonite" },
+          { trait_type: "Image Type", value: mimeType },
+        ],
+
+        // Additional metadata
+        external_url: "https://iotascan.com/mainnet",
+        animation_url: imageGatewayUrl,
+      };
+
+      setStatus("Uploading metadata to IPFS...");
+      const uploadedMetadata = await uploadMetadataToPinata(metadata);
+      const metadataGatewayUrl = uploadedMetadata.url;
+      setMetadataUrl(metadataGatewayUrl);
+
+      setStatus("Waiting for wallet approval...");
+
+      const tx = new Transaction();
+
+      tx.moveCall({
+        target: `${PACKAGE_ID}::kryptonite_nft::mint_to_sender`,
+        arguments: [
+          tx.pure.string(name.trim()),
+          tx.pure.string(description.trim()),
+          tx.pure.string(imageGatewayUrl),
+        ],
+      });
+
+      signAndExecuteTransaction(
+        { transaction: tx },
+        {
+          onSuccess: async (result) => {
+            setDigest(result.digest);
+            setStatus("✅ NFT minted successfully! Wallets will display it in 1-2 minutes.");
+            setMinting(false);
+            setName("");
+            setDescription("");
+            setFile(null);
+            setPreviewUrl("");
+            setTimeout(() => loadMyNfts(), 2000);
+          },
+          onError: (error) => {
+            console.error(error);
+            setStatus(`❌ Mint failed: ${error.message || "Unknown error"}`);
+            setMinting(false);
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+      setStatus(error instanceof Error ? `❌ Error: ${error.message}` : "❌ Unexpected error");
+      setMinting(false);
+    }
+  }
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#ffffff",
+        color: "#111111",
+        padding: 24,
+        fontFamily: "sans-serif",
+      }}
+    >
+      <div style={{ maxWidth: 980, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 42, marginBottom: 20 }}>
+          🚀 Kryptonite IOTA Mainnet NFT Minter
+        </h1>
+
+        <div style={{ marginBottom: 24 }}>
+          <ConnectButton />
+        </div>
+
+        <div
+          style={{
+            border: "1px solid #ddd",
+            borderRadius: 20,
+            padding: 24,
+            marginBottom: 32,
+            background: "#fff",
+          }}
+        >
+          <h2 style={{ marginTop: 0, marginBottom: 20 }}>Mint NFT</h2>
+
+          <input
+            type="text"
+            placeholder="NFT Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={{
+              width: "100%",
+              padding: 14,
+              fontSize: 16,
+              marginBottom: 16,
+              borderRadius: 10,
+              border: "1px solid #bbb",
+              boxSizing: "border-box",
+            }}
+          />
+
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            style={{
+              width: "100%",
+              padding: 14,
+              fontSize: 16,
+              marginBottom: 16,
+              borderRadius: 10,
+              border: "1px solid #bbb",
+              resize: "vertical",
+              boxSizing: "border-box",
+            }}
+          />
+
+          <div style={{ marginBottom: 16 }}>
+            <label
+              style={{
+                display: "block",
+                fontWeight: 600,
+                marginBottom: 8,
+              }}
+            >
+              Image File
+            </label>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setFile(e.target.files[0]);
+                }
+              }}
+            />
+          </div>
+
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              style={{
+                width: "100%",
+                maxWidth: 380,
+                aspectRatio: "1 / 1",
+                objectFit: "cover",
+                borderRadius: 16,
+                marginBottom: 16,
+                display: "block",
+                background: "#eee",
+              }}
+            />
+          )}
+
+          <button
+            onClick={handleMint}
+            disabled={minting}
+            style={{
+              padding: "14px 22px",
+              borderRadius: 12,
+              border: "1px solid #111",
+              background: minting ? "#666" : "#111",
+              color: "#fff",
+              fontSize: 18,
+              cursor: minting ? "not-allowed" : "pointer",
+            }}
+          >
+            {minting ? "⏳ Minting..." : "✨ Mint NFT"}
+          </button>
+
+          <div style={{ marginTop: 18 }}>
+            <p style={{ margin: 0, fontSize: 18 }}>{status}</p>
+
+            {imageUrl && (
+              <p style={{ marginTop: 10, wordBreak: "break-all" }}>
+                <strong>📸 IPFS Image:</strong>{" "}
+                <a href={imageUrl} target="_blank" rel="noopener noreferrer">
+                  View →
+                </a>
+              </p>
+            )}
+
+            {metadataUrl && (
+              <p style={{ marginTop: 10, wordBreak: "break-all" }}>
+                <strong>📋 IPFS Metadata:</strong>{" "}
+                <a href={metadataUrl} target="_blank" rel="noopener noreferrer">
+                  View →
+                </a>
+              </p>
+            )}
+
+            {digest && (
+              <p style={{ marginTop: 10, wordBreak: "break-all" }}>
+                <strong>🔗 IOTAScan Tx:</strong>{" "}
+                <a
+                  href={`https://iotascan.com/mainnet/tx/${digest}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {digest.substring(0, 20)}...
+                </a>
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h2 style={{ marginBottom: 20 }}>📚 My Minted NFTs</h2>
+
+          {nfts.length === 0 ? (
+            <p>No NFTs minted yet. Create your first one above! 🎨</p>
+          ) : (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                gap: 20,
+              }}
+            >
+              {nfts.map((nft) => (
+                <div
+                  key={nft.objectId}
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 20,
+                    padding: 20,
+                    background: "#fff",
+                  }}
+                >
+                  {nft.url ? (
+                    <img
+                      src={nft.url}
+                      alt={nft.name}
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1 / 1",
+                        objectFit: "cover",
+                        borderRadius: 16,
+                        marginBottom: 16,
+                        background: "#eee",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1 / 1",
+                        borderRadius: 16,
+                        marginBottom: 16,
+                        background: "#ddd",
+                        display: "grid",
+                        placeItems: "center",
+                        color: "#666",
+                        fontSize: 14,
+                      }}
+                    >
+                      No image
+                    </div>
+                  )}
+
+                  <h3 style={{ margin: "0 0 8px 0", fontSize: 22 }}>
+                    {nft.name}
+                  </h3>
+
+                  <p style={{ margin: "0 0 12px 0", fontSize: 16 }}>
+                    {nft.description}
+                  </p>
+
+                  <p style={{ margin: "0 0 10px 0", wordBreak: "break-all", fontSize: 14 }}>
+                    {nft.objectId}
+                  </p>
+
+                  <a
+                    href={`https://iotascan.com/mainnet/object/${nft.objectId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-block",
+                      padding: "8px 12px",
+                      borderRadius: 10,
+                      background: "#111",
+                      color: "#fff",
+                      textDecoration: "none",
+                      fontSize: 14,
+                    }}
+                  >
+                    View on IOTAScan
+                  </a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
