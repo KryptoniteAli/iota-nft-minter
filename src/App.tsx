@@ -69,51 +69,47 @@ export default function App() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
+ 
   async function uploadFileToPinata(
-    uploadFile: File
-  ): Promise<{ cid: string; url: string }> {
-    const response = await fetch(
-      `/api/pinata-url?name=${encodeURIComponent(uploadFile.name)}`
-    );
-    const signed = await response.json();
+  uploadFile: File
+): Promise<{ cid: string; url: string }> {
+  const formData = new FormData();
+  formData.append("file", uploadFile);
 
-    if (!signed?.url) {
-      throw new Error("Signed upload URL not returned");
-    }
+  const pinataJwt = import.meta.env.VITE_PINATA_JWT;
 
-    const formData = new FormData();
-    formData.append("file", uploadFile);
+  if (!pinataJwt) {
+    throw new Error("Pinata JWT not found. Add VITE_PINATA_JWT to .env.local");
+  }
 
-    const upload = await fetch(signed.url, {
+  try {
+    const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${pinataJwt}`,
+      },
       body: formData,
     });
 
-    const rawText = await upload.text();
-
-    if (!upload.ok) {
-      throw new Error(`Pinata upload failed: ${rawText}`);
+    if (!response.ok) {
+      throw new Error(`Pinata upload failed: ${response.statusText}`);
     }
 
-    let data: any = {};
-    try {
-      data = JSON.parse(rawText);
-    } catch {
-      throw new Error(`Pinata returned non-JSON response: ${rawText}`);
-    }
-
-    const cid =
-      data?.data?.cid || data?.cid || data?.IpfsHash || data?.ipfsHash;
+    const data = await response.json();
+    const cid = data.IpfsHash;
 
     if (!cid) {
-      throw new Error(`Pinata CID not returned. Response: ${rawText}`);
+      throw new Error("Pinata CID not returned");
     }
 
     return {
       cid,
       url: `https://gateway.pinata.cloud/ipfs/${cid}`,
     };
+  } catch (error) {
+    throw new Error(`Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
+}
 
   async function uploadMetadataToPinata(metadata: Record<string, unknown>) {
     const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], {
