@@ -112,9 +112,11 @@ Create `.env`:
   ]
 }
 
+
 ---
 
-⚠️ Challenges Solved
+
+ ## ⚠️ Challenges Solved
 ❌ Wallet not rendering NFT → fixed metadata structure
 ❌ IPFS gateway errors (401/404) → switched gateway
 ❌ Git + deployment conflicts → resolved CI/CD flow
@@ -122,7 +124,7 @@ Create `.env`:
 
 ---
 
-🚀 Roadmap (Pro Version)
+### 🚀 Roadmap (Pro Version)
 🔥 On-chain Display Standard
 🧩 NFT Collections
 🏪 Marketplace (Kiosk Standard)
@@ -130,14 +132,16 @@ Create `.env`:
 ⚡ Batch minting
 
 ---
-👨‍💻 Author
+
+
+## 👨‍💻 Author
 
 KryptoniteAli
 https://github.com/KryptoniteAli
 
 ---
 
-⭐ Support
+## ⭐ Support
 
 If this helped you:
 
