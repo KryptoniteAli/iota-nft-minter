@@ -1,181 +1,114 @@
-# iota-nft-minter
-Move
-# Kryptonite NFT Minter
+# 🚀 Kryptonite IOTA NFT Minter
 
-A full-stack NFT minting dApp built on the IOTA Move network.
+![IOTA](https://img.shields.io/badge/IOTA-Mainnet-blue)
+![React](https://img.shields.io/badge/React-TypeScript-61DAFB)
+![IPFS](https://img.shields.io/badge/IPFS-Pinata-green)
+![Vercel](https://img.shields.io/badge/Deployed-Vercel-black)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
-This application allows users to upload an image, store it on IPFS, create NFT metadata, and mint an NFT directly from the browser using an IOTA wallet.
-
----
-
-## Live Demo
-
-https://kryptoniteminter.vercel.app
+A full-stack Web3 dApp that enables users to mint NFTs on the **IOTA blockchain**, using **Move smart contracts, IPFS storage, and a modern React frontend**.
 
 ---
 
-## GitHub Repository
-
-https://github.com/KryptoniteAli/iota-nft-minter
-
----
-
-## Smart Contract (IOTA Move)
-
-Package ID
-
-0x02bd1cad27faa2e5b757a199c579d7e128c5b725d976ceb37234e907b3a7f7a1
-
-Module
-
-kryptonite_nft
-
-NFT Struct
-
+## 🌐 Live App
+👉 https://kryptoniteminter.vercel.app  
 
 ---
 
-## Example Mint Transaction
+## 🎯 What This Project Proves
 
-https://iotascan.com/mainnet/tx/Efs3PiXy65KEX2HyktUHSMXb7JBhDKQ8ciJhKG3ebuq9
-
-Explorer
-
-https://iotascan.com
-
----
-
-## Features
-
-- Wallet connection with Nightly wallet
-- Upload NFT images to IPFS
-- Create metadata stored on IPFS
-- Mint NFTs on IOTA Move mainnet
-- Display minted NFTs in a gallery
-- Explorer link for each NFT
-- Transaction link after mint
+✔ End-to-end Web3 development  
+✔ Smart contract deployment (Move / IOTA)  
+✔ Wallet integration (Nightly)  
+✔ Decentralized storage (IPFS)  
+✔ Production deployment (Vercel)  
 
 ---
 
-## Tech Stack
+## ✨ Core Features
 
-Frontend
-- React
-- TypeScript
+- 🔗 Wallet connection (IOTA Nightly)
+- 🖼 Image upload → IPFS (Pinata)
+- 📄 Metadata generation (wallet-ready)
+- ⚡ On-chain NFT minting
+- 📦 NFT gallery display
+- 🔍 Transaction tracking (IOTAScan)
+- 🧩 Modular architecture (frontend + Move)
+
+---
+
+## 🧱 Architecture
+
+
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+- React + TypeScript
 - Vite
-
-Web3
 - IOTA dApp Kit
-- IOTA Move smart contracts
+- TanStack Query
 
-Storage
+### Blockchain
+- IOTA Move
+- Smart Contracts (NFT minting)
+
+### Storage
 - IPFS via Pinata
 
-Deployment
+### Deployment
 - Vercel
 
 ---
 
-## Project Architecture
+## 📂 Project Structure
 
 
 ---
 
-## Example Mint Transaction
+## ⚙️ Setup
 
-https://iotascan.com/mainnet/tx/Efs3PiXy65KEX2HyktUHSMXb7JBhDKQ8ciJhKG3ebuq9
-
-Explorer
-
-https://iotascan.com
-
----
-
-## Features
-
-- Wallet connection with Nightly wallet
-- Upload NFT images to IPFS
-- Create metadata stored on IPFS
-- Mint NFTs on IOTA Move mainnet
-- Display minted NFTs in a gallery
-- Explorer link for each NFT
-- Transaction link after mint
-
----
-
-## Tech Stack
-
-Frontend
-- React
-- TypeScript
-- Vite
-
-Web3
-- IOTA dApp Kit
-- IOTA Move smart contracts
-
-Storage
-- IPFS via Pinata
-
-Deployment
-- Vercel
-
----
-
-## Project Architecture
+### Clone
 
 
-Image and metadata storage:
+### Install
+
+
+### Environment
+
+Create `.env`:
+
+
+### Run
 
 
 ---
 
-## Local Development
+## 🔄 Minting Flow
 
-Clone repository
-
-
-
-Install dependencies
-
-
-Run development server
-
-
-Build
+1. Connect wallet  
+2. Upload image → IPFS  
+3. Generate metadata JSON  
+4. Call Move contract  
+5. Sign transaction  
+6. NFT minted on-chain  
+7. Display in UI  
 
 ---
 
-## Environment Variables
+## 📄 Metadata Standard
 
-The serverless API uses a Pinata signed upload URL.
-
-Required environment variables:
-
-
-
-These are configured in Vercel.
-
----
-
-## Screenshots
-
-Mint page
-
-Add a screenshot of your dApp interface here.
-
----
-
-## Author
-
-Kryptonite Ali
-
----
-
-## License
-
-MIT
-
-
-
+```json
+{
+  "name": "NFT Name",
+  "description": "NFT Description",
+  "image": "https://gateway.pinata.cloud/ipfs/...",
+  "attributes": [
+    { "trait_type": "Collection", "value": "Kryptonite NFT" },
+    { "trait_type": "Network", "value": "IOTA" },
+    { "trait_type": "Creator", "value": "KryptoniteAli" }
+  ]
+}
 
