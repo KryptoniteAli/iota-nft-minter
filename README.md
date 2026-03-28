@@ -114,7 +114,11 @@ Create `.env`:
 
 
 
-## ⚠️ Challenges Solved
+
+
+
+
+  ## ⚠️ Challenges Solved
 
 - ❌ Wallet not rendering NFT → fixed metadata structure  
 - ❌ IPFS gateway errors (401/404) → switched gateway  
@@ -146,4 +150,6 @@ If this helped you:
 
 - ⭐ Star the repo  
 - 🚀 Fork & build  
-- 🧠 Learn Web3 with IOTA  
+- 🧠 Learn Web3 with IOTA
+
+
