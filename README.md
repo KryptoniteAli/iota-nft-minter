@@ -112,15 +112,6 @@ Display in UI
 📊 Analytics dashboard
 ⚡ Batch minting
 
-
-📸 Screenshots
-
-<img width="1088" height="848" alt="image" src="https://github.com/user-attachments/assets/453f6f57-836c-4f70-99d0-6dd91b2cd9a7" />
-
-
-
-
-
 👨‍💻 Author
 
 KryptoniteAli
