@@ -10,7 +10,7 @@ import App from "./App";
 import "@iota/dapp-kit/dist/index.css";
 
 const { networkConfig } = createNetworkConfig({
-  mainnet: { url: "https://api.testnet.iota.cafe" },
+  mainnet: { url: "https://api.mainnet.iota.cafe" },
 });
 
 const queryClient = new QueryClient();
