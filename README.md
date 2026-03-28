@@ -1,155 +1,61 @@
-# 🚀 Kryptonite IOTA NFT Minter
+<h1 align="center">🚀 Kryptonite IOTA NFT Minter</h1>
 
-![IOTA](https://img.shields.io/badge/IOTA-Mainnet-blue)
-![React](https://img.shields.io/badge/React-TypeScript-61DAFB)
-![IPFS](https://img.shields.io/badge/IPFS-Pinata-green)
-![Vercel](https://img.shields.io/badge/Deployed-Vercel-black)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+<p align="center">
+  A full-stack Web3 NFT minting dApp built on the IOTA blockchain  
+</p>
 
-A full-stack Web3 dApp that enables users to mint NFTs on the **IOTA blockchain**, using **Move smart contracts, IPFS storage, and a modern React frontend**.
-
----
-
-## 🌐 Live App
-👉 https://kryptoniteminter.vercel.app  
-
----
-
-## 🎯 What This Project Proves
-
-✔ End-to-end Web3 development  
-✔ Smart contract deployment (Move / IOTA)  
-✔ Wallet integration (Nightly)  
-✔ Decentralized storage (IPFS)  
-✔ Production deployment (Vercel)  
+<p align="center">
+  <a href="https://kryptoniteminter.vercel.app">
+    🔴 <b>Live Demo</b>
+  </a> • 
+  <a href="https://github.com/KryptoniteAli/iota-nft-minter">
+    📂 <b>Source Code</b>
+  </a>
+</p>
 
 ---
 
-## ✨ Core Features
+## 🧠 Overview
 
-- 🔗 Wallet connection (IOTA Nightly)
-- 🖼 Image upload → IPFS (Pinata)
-- 📄 Metadata generation (wallet-ready)
-- ⚡ On-chain NFT minting
-- 📦 NFT gallery display
+Kryptonite NFT Minter is a **production-ready Web3 application** that allows users to:
+
+- Connect their IOTA wallet
+- Upload images to IPFS
+- Generate NFT metadata
+- Mint NFTs directly on-chain
+- View NFTs inside the app
+
+---
+
+## ✨ Features
+
+- 🔗 Wallet integration (Nightly Wallet)
+- 🖼 IPFS image upload (Pinata)
+- 📄 Dynamic metadata generation
+- ⚡ Smart contract NFT minting (Move)
+- 📦 NFT gallery UI
 - 🔍 Transaction tracking (IOTAScan)
-- 🧩 Modular architecture (frontend + Move)
+- 🌐 Fully deployed (Vercel)
 
 ---
 
-## 🧱 Architecture
+## 🧱 Tech Stack
 
-
-
----
-
-## 🛠 Tech Stack
-
-### Frontend
-- React + TypeScript
-- Vite
-- IOTA dApp Kit
-- TanStack Query
-
-### Blockchain
-- IOTA Move
-- Smart Contracts (NFT minting)
-
-### Storage
-- IPFS via Pinata
-
-### Deployment
-- Vercel
+| Layer        | Technology |
+|-------------|-----------|
+| Frontend     | React + TypeScript + Vite |
+| Blockchain   | IOTA Move |
+| Wallet       | Nightly Wallet |
+| Storage      | IPFS (Pinata) |
+| Deployment   | Vercel |
 
 ---
 
-## 📂 Project Structure
+## 🏗 Architecture
 
-
----
-
-## ⚙️ Setup
-
-### Clone
-
-
-### Install
-
-
-### Environment
-
-Create `.env`:
-
-
-### Run
-
-
----
-
-## 🔄 Minting Flow
-
-1. Connect wallet  
-2. Upload image → IPFS  
-3. Generate metadata JSON  
-4. Call Move contract  
-5. Sign transaction  
-6. NFT minted on-chain  
-7. Display in UI  
-
----
-
-## 📄 Metadata Standard
-
-```json
-{
-  "name": "NFT Name",
-  "description": "NFT Description",
-  "image": "https://gateway.pinata.cloud/ipfs/...",
-  "attributes": [
-    { "trait_type": "Collection", "value": "Kryptonite NFT" },
-    { "trait_type": "Network", "value": "IOTA" },
-    { "trait_type": "Creator", "value": "KryptoniteAli" }
-  ]
-}
-
-
-
-
-
-
-
-  ## ⚠️ Challenges Solved
-
-- ❌ Wallet not rendering NFT → fixed metadata structure  
-- ❌ IPFS gateway errors (401/404) → switched gateway  
-- ❌ Git + deployment conflicts → resolved CI/CD flow  
-- ❌ Package ID mismatch → dynamic env config  
-
----
-
-## 🚀 Roadmap (Pro Version)
-
-- 🔥 On-chain Display Standard  
-- 🧩 NFT Collections  
-- 🏪 Marketplace (Kiosk Standard)  
-- 📊 Analytics dashboard  
-- ⚡ Batch minting  
-
----
-
-## 👨‍💻 Author
-
-**KryptoniteAli**  
-🔗 https://github.com/KryptoniteAli  
-
----
-
-## ⭐ Support
-
-If this helped you:
-
-- ⭐ Star the repo  
-- 🚀 Fork & build  
-- 🧠 Learn Web3 with IOTA
+```text
+User → React App → Pinata (IPFS)
+                → IOTA Move Contract
+                → Wallet (Sign Tx)
 
 
