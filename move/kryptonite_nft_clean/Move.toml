@@ -1,0 +1,9 @@
+[package]
+name = "kryptonite_nft_clean"
+edition = "2024.beta"
+
+[dependencies]
+Iota = { git = "https://github.com/iotaledger/iota.git", subdir = "crates/iota-framework/packages/iota-framework", rev = "develop" }
+
+[addresses]
+kryptonite_nft_clean = "0x0"
