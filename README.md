@@ -137,7 +137,6 @@ If this project helped you:
 🪪 License
 
 MIT License
-
-<p align="center"> 🔥 Built with passion on IOTA 🔥 </p>
+🔥 Built with passion on IOTA 🔥 
 
 
