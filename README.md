@@ -112,3 +112,29 @@ Create `.env`:
   ]
 }
 
+
+⚠️ Challenges Solved
+❌ Wallet not rendering NFT → fixed metadata structure
+❌ IPFS gateway errors (401/404) → switched gateway
+❌ Git + deployment conflicts → resolved CI/CD flow
+❌ Package ID mismatch → dynamic env config
+
+🚀 Roadmap (Pro Version)
+🔥 On-chain Display Standard
+🧩 NFT Collections
+🏪 Marketplace (Kiosk Standard)
+📊 Analytics dashboard
+⚡ Batch minting
+
+👨‍💻 Author
+
+KryptoniteAli
+https://github.com/KryptoniteAli
+
+⭐ Support
+
+If this helped you:
+
+⭐ Star the repo
+🚀 Fork & build
+🧠 Learn Web3 with IOTA
